@@ -1,5 +1,6 @@
 package me.weijun.nfchat;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -23,8 +24,28 @@ public class LoginActivity extends ActionBarActivity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+        NfcHelper.getInstance().onCreateInActivity(this);
     }
 
+    @Override
+    protected void onResume() {
+        MyUtils.Log("LoginActivity onResume");
+        super.onResume();
+        NfcHelper.getInstance().onResumeInActivity(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        NfcHelper.getInstance().onPauseInActivity(this);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        MyUtils.Log("onNewIntent");
+        super.onNewIntent(intent);
+        NfcHelper.getInstance().onNewIntentInActivity(intent);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
