@@ -12,6 +12,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.avos.avoscloud.AVObject;
+
 /**
  * Created by mac on 15/4/10.
  * 使用枚举实现单例模式
@@ -56,6 +58,10 @@ public enum NfcHelper {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             final String id = NfcHelper.byte2HexString(tag.getId());
             MyUtils.Toast(id);
+            AVObject testObject = new AVObject("Tag");
+            testObject.put("tag_id", id);
+            testObject.saveInBackground();
+
             if (activity instanceof LoginActivity) {
                 ((TextView)activity.findViewById(R.id.login_textView)).setText("你将成为这张卡的主人");
                 activity.findViewById(R.id.login_imageView).setVisibility(View.GONE);
