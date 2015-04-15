@@ -110,7 +110,7 @@ public class LoginFragment extends Fragment {
                     currentUser.logOut();
                 }
 
-                if (passwordEditText.getText().toString().contains("注册")) {
+                if (passwordEditText.getHint().toString().contains("注册")) {
                     AVUser newUser = new AVUser();
                     newUser.setUsername(MyApplication.currentTagId);
                     newUser.setPassword(password);
