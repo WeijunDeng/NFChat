@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="theme_main">#24c7bd</color>
+    <color name="theme_main">#46d2e6</color>
+    <color name="theme_darker">#288ca0</color>
 
 </resources>

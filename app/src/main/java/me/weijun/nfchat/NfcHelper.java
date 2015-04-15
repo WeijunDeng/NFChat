@@ -2,17 +2,10 @@ package me.weijun.nfchat;
 
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.NfcA;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.TextView;
-
-import com.avos.avoscloud.AVObject;
 
 /**
  * Created by mac on 15/4/10.
@@ -57,22 +50,13 @@ public enum NfcHelper {
                 .equals(intent.getAction()))) {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             final String id = NfcHelper.byte2HexString(tag.getId());
-            MyUtils.Toast(id);
-            AVObject testObject = new AVObject("Tag");
-            testObject.put("tag_id", id);
-            testObject.saveInBackground();
+
+
+
 
             if (activity instanceof LoginActivity) {
-                ((TextView)activity.findViewById(R.id.login_textView)).setText("你将成为这张卡的主人");
-                activity.findViewById(R.id.login_imageView).setVisibility(View.GONE);
-                EditText passwordEditText = (EditText)activity.findViewById(R.id.password_editText);
-                passwordEditText.setVisibility(View.VISIBLE);
-                passwordEditText.setFocusable(true);
-                passwordEditText.setFocusableInTouchMode(true);
-                passwordEditText.requestFocus();
-                InputMethodManager inputManager =
-                        (InputMethodManager)passwordEditText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.showSoftInput(passwordEditText, 0);
+                LoginFragment loginFragment = (LoginFragment)((LoginActivity) activity).getSupportFragmentManager().getFragments().get(0);
+                loginFragment.showPasswordEditText(id);
             }
         }
     }
