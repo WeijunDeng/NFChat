@@ -1,6 +1,7 @@
 package me.weijun.nfchat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -34,6 +35,7 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         View rootView = inflater.inflate(R.layout.fragment_login, container, false);
         return rootView;
     }
@@ -62,7 +64,7 @@ public class LoginFragment extends Fragment {
                         loginTextView.setText("如果你是这张卡的主人");
                         passwordEditText.setHint("请输入密码登录");
                     }
-                    getActivity().findViewById(R.id.login_imageView).setVisibility(View.GONE);
+                    loginImageView.setVisibility(View.GONE);
                     passwordEditText.setVisibility(View.VISIBLE);
                     passwordEditText.setFocusable(true);
                     passwordEditText.setFocusableInTouchMode(true);
@@ -101,7 +103,7 @@ public class LoginFragment extends Fragment {
         getActivity().findViewById(R.id.login_go_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String password = ((EditText) getActivity().findViewById(R.id.password_editText)).getText().toString();
+                final String password = ((EditText) getActivity().findViewById(R.id.password_editText)).getText().toString();
                 if (password.length() == 0 || MyApplication.currentTagId.length() == 0) {
                     return;
                 }
@@ -111,36 +113,47 @@ public class LoginFragment extends Fragment {
                 }
 
                 if (passwordEditText.getHint().toString().contains("注册")) {
-                    AVUser newUser = new AVUser();
-                    newUser.setUsername(MyApplication.currentTagId);
-                    newUser.setPassword(password);
-                    newUser.signUpInBackground(new SignUpCallback() {
-                        @Override
-                        public void done(AVException e) {
-                            if (e == null) {
-                                MyUtils.Toast("注册成功");
-                            }
-                            else {
-                                MyUtils.Toast("注册失败" + String.valueOf(e.getCode()));
-                            }
-                        }
-                    });
+                    register(MyApplication.currentTagId, password);
                 }
                 else {
-                    AVUser.logInInBackground(MyApplication.currentTagId, password, new LogInCallback<AVUser>() {
-                        @Override
-                        public void done(AVUser avUser, AVException e) {
-                            if (e == null && avUser != null) {
-                                MyUtils.Toast("登录成功");
-                            } else {
-                                MyUtils.Toast("登录失败" + String.valueOf(e.getCode()));
-                            }
-                        }
-                    });
+                    login(MyApplication.currentTagId, password);
                 }
 
 
 
+            }
+        });
+    }
+
+    private void register(final String username, final String password) {
+        AVUser newUser = new AVUser();
+        newUser.setUsername(username);
+        newUser.setPassword(password);
+        newUser.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(AVException e) {
+                if (e == null) {
+                    MyUtils.Toast("注册成功");
+                    login(MyApplication.currentTagId, password);
+                }
+                else {
+                    MyUtils.Toast("注册失败" + String.valueOf(e.getCode()));
+                }
+            }
+        });
+    }
+
+    private void login(String username, String password) {
+        AVUser.logInInBackground(username, password, new LogInCallback<AVUser>() {
+            @Override
+            public void done(AVUser avUser, AVException e) {
+                if (e == null && avUser != null) {
+                    MyUtils.Toast("登录成功");
+                    startActivity(new Intent(getActivity(), MainActivity.class));
+                    getActivity().finish();
+                } else {
+                    MyUtils.Toast("登录失败" + String.valueOf(e.getCode()));
+                }
             }
         });
     }
