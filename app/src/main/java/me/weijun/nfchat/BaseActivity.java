@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-import com.avos.avoscloud.AVAnalytics;
-
 
 public class BaseActivity extends FragmentActivity {
 
@@ -13,7 +11,6 @@ public class BaseActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         NfcHelper.instance.onCreateInActivity(this);
-        AVAnalytics.trackAppOpened(getIntent());
     }
 
     @Override

@@ -17,6 +17,7 @@ public enum NfcHelper {
 
     private static NfcAdapter mNfcAdapter;
 
+
     public void onCreateInActivity(Activity activity) {
         NfcEnabled(activity);
     }
@@ -49,14 +50,11 @@ public enum NfcHelper {
         if ((NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction()) || NfcAdapter.ACTION_TECH_DISCOVERED
                 .equals(intent.getAction()))) {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-            final String id = NfcHelper.byte2HexString(tag.getId());
-
-
-
-
+            String tagId = NfcHelper.byte2HexString(tag.getId());
+            MyUtils.Toast(tagId);
             if (activity instanceof LoginActivity) {
                 LoginFragment loginFragment = (LoginFragment)((LoginActivity) activity).getSupportFragmentManager().getFragments().get(0);
-                loginFragment.showPasswordEditText(id);
+                loginFragment.showPasswordEditText(tagId);
             }
         }
     }
