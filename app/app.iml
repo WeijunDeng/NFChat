@@ -88,12 +88,12 @@
     <orderEntry type="library" exported="" name="fastjson-1.1.37-leancloud" level="project" />
     <orderEntry type="library" exported="" name="Java-WebSocket-1.2.0-leancloud" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-21.0.3" level="project" />
+    <orderEntry type="library" exported="" name="avoscloud-statistics-v3.1.3" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-21.0.3" level="project" />
-    <orderEntry type="library" exported="" name="avoscloud-sdk-v3.0.4" level="project" />
-    <orderEntry type="library" exported="" name="avoscloud-statistics-v3.0.4" level="project" />
+    <orderEntry type="library" exported="" name="avoscloud-push-v3.1.3" level="project" />
     <orderEntry type="library" exported="" name="support-v4-21.0.3" level="project" />
+    <orderEntry type="library" exported="" name="avoscloud-sdk-v3.1.3" level="project" />
     <orderEntry type="library" exported="" name="httpcore-4.2.4" level="project" />
-    <orderEntry type="library" exported="" name="avoscloud-push-v3.0.4" level="project" />
     <orderEntry type="library" exported="" name="android-async-http-1.4.6" level="project" />
     <orderEntry type="library" exported="" name="httpmime-4.2.4" level="project" />
   </component>

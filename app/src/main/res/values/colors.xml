@@ -2,6 +2,7 @@
 <resources>
 
     <color name="theme_main">#46d2e6</color>
-    <color name="theme_darker">#288ca0</color>
+    <color name="theme_button">#278aa2</color>
+    <color name="theme_button_darker">#2080a0</color>
 
 </resources>

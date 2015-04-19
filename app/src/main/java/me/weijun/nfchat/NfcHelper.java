@@ -62,13 +62,17 @@ public enum NfcHelper {
     public boolean NfcEnabled (Activity activity) {
         mNfcAdapter = NfcAdapter.getDefaultAdapter(activity);
         if (mNfcAdapter == null) {
-            MyUtils.Toast("设备不支持NFC！");
-            activity.finish();
+            if (activity instanceof LoginActivity) {
+                MyUtils.Toast("设备不支持NFC！");
+//            activity.finish();
+            }
             return false;
         }
         if (!mNfcAdapter.isEnabled()) {
-            MyUtils.Toast("请在系统设置中先启用NFC功能！");
-            activity.finish();
+            if (activity instanceof LoginActivity) {
+                MyUtils.Toast("请在系统设置中先启用NFC功能！");
+//            activity.finish();
+            }
             return false;
         }
         return true;
