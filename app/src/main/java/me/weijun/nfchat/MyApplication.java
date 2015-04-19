@@ -8,6 +8,7 @@ import com.avos.avoscloud.im.v2.AVIMMessageManager;
 
 /**
  * Created by mac on 15/4/10.
+ *
  */
 public class MyApplication extends Application {
 

@@ -1,4 +1,4 @@
-package me.weijun.nfchat;
+package me.weijun.nfchat.fragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,8 +15,14 @@ import android.widget.TextView;
 
 import com.avos.avoscloud.AVException;
 
+import me.weijun.nfchat.MyUtils;
+import me.weijun.nfchat.model.NFUser;
+import me.weijun.nfchat.R;
+import me.weijun.nfchat.activity.MainActivity;
+
 /**
  * Created by mac on 15/4/15.
+ *
  */
 public class LoginFragment extends Fragment {
     private TextView loginTextView;
@@ -51,10 +57,6 @@ public class LoginFragment extends Fragment {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NFUser currentUser = NFUser.getCurrentUser();
-                if (currentUser != null) {
-                    currentUser.logOut();
-                }
                 final String password = passwordEditText.getText().toString();
                 if (password.length() == 0) {
                     return;
@@ -94,9 +96,11 @@ public class LoginFragment extends Fragment {
         idButton.setVisibility(View.VISIBLE);
         passwordEditText.clearFocus();
         passwordEditText.setText("");
-        InputMethodManager inputManager =
-                (InputMethodManager)getView().getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,InputMethodManager.HIDE_NOT_ALWAYS);
+        if (getView() != null) {
+            InputMethodManager inputManager =
+                    (InputMethodManager)getView().getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,InputMethodManager.HIDE_NOT_ALWAYS);
+        }
         loginButton.setVisibility(View.GONE);
     }
 
@@ -110,9 +114,11 @@ public class LoginFragment extends Fragment {
         passwordEditText.setFocusable(true);
         passwordEditText.setFocusableInTouchMode(true);
         passwordEditText.requestFocus();
-        InputMethodManager inputManager =
-                (InputMethodManager)getView().getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.showSoftInput(passwordEditText, 0);
+        if (getView() != null) {
+            InputMethodManager inputManager =
+                    (InputMethodManager)getView().getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.showSoftInput(passwordEditText, 0);
+        }
     }
 
     private void setIdLoginVisibility() {

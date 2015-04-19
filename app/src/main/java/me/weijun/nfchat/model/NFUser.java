@@ -1,4 +1,7 @@
-package me.weijun.nfchat;
+package me.weijun.nfchat.model;
+
+import android.app.Activity;
+import android.content.Intent;
 
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVQuery;
@@ -9,8 +12,12 @@ import com.avos.avoscloud.SignUpCallback;
 
 import java.util.List;
 
+import me.weijun.nfchat.MyUtils;
+import me.weijun.nfchat.activity.LoginActivity;
+
 /**
  * Created by WeijunDeng on 2015/4/18.
+ *
  */
 public class NFUser extends AVUser{
 
@@ -99,8 +106,19 @@ public class NFUser extends AVUser{
     }
 
     public static NFUser getCurrentUser() {
-        NFUser user = AVUser.getCurrentUser(NFUser.class);
-        return user;
+        return AVUser.getCurrentUser(NFUser.class);
+    }
+
+    public static void getAllUser(FindCallback<NFUser> userFindCallback) {
+        AVQuery<NFUser> query = NFUser.getUserQuery(NFUser.class);
+        query.whereNotEqualTo("userId", getCurrentUser().getUserId());
+        query.findInBackground(userFindCallback);
+    }
+
+    public static void logOut(Activity activity){
+        logOut();
+        activity.startActivity(new Intent(activity, LoginActivity.class));
+        activity.finish();
     }
 
     public static abstract class NFUserCallBack {

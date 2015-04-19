@@ -1,11 +1,13 @@
-package me.weijun.nfchat;
+package me.weijun.nfchat.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
+
+import me.weijun.nfchat.NfcHelper;
 
 
-public class BaseActivity extends FragmentActivity {
+public class BaseActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

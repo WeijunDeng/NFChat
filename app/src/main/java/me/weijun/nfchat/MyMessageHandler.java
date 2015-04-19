@@ -7,6 +7,7 @@ import com.avos.avoscloud.im.v2.AVIMMessageHandler;
 
 /**
  * Created by WeijunDeng on 2015/4/18.
+ *
  */
 public class MyMessageHandler extends AVIMMessageHandler {
     @Override

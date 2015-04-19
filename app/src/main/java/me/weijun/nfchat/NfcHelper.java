@@ -7,6 +7,9 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.NfcA;
 
+import me.weijun.nfchat.activity.LoginActivity;
+import me.weijun.nfchat.fragment.LoginFragment;
+
 /**
  * Created by mac on 15/4/10.
  * 使用枚举实现单例模式
@@ -56,6 +59,9 @@ public enum NfcHelper {
                 LoginFragment loginFragment = (LoginFragment)((LoginActivity) activity).getSupportFragmentManager().getFragments().get(0);
                 loginFragment.showPasswordEditText(tagId);
             }
+//            else if (activity instanceof MainActivity) {
+//
+//            }
         }
     }
 

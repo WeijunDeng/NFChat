@@ -1,4 +1,4 @@
-package me.weijun.nfchat;
+package me.weijun.nfchat.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,18 +7,23 @@ import android.view.WindowManager;
 
 import com.avos.avoscloud.AVAnalytics;
 
+import me.weijun.nfchat.fragment.LoginFragment;
+import me.weijun.nfchat.model.NFUser;
+import me.weijun.nfchat.R;
+
 
 public class LoginActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
          /*set it to be no title*/
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
        /*set it to be full screen*/
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_login);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        getSupportActionBar().hide();
         AVAnalytics.trackAppOpened(getIntent());
 
         NFUser currentUser = NFUser.getCurrentUser();

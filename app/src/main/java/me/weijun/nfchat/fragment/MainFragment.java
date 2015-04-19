@@ -1,4 +1,4 @@
-package me.weijun.nfchat;
+package me.weijun.nfchat.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,8 +24,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.weijun.nfchat.MyUtils;
+import me.weijun.nfchat.R;
+import me.weijun.nfchat.activity.LoginActivity;
+
 /**
  * Created by mac on 15/4/16.
+ *
  */
 public class MainFragment extends Fragment {
     EditText mUsernameEditText;
