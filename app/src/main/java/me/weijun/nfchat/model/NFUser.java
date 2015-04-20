@@ -9,9 +9,12 @@ import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.FindCallback;
 import com.avos.avoscloud.LogInCallback;
 import com.avos.avoscloud.SignUpCallback;
+import com.avos.avoscloud.im.v2.AVIMClient;
+import com.avos.avoscloud.im.v2.callback.AVIMClientCallback;
 
 import java.util.List;
 
+import me.weijun.nfchat.ChatClient;
 import me.weijun.nfchat.MyUtils;
 import me.weijun.nfchat.activity.LoginActivity;
 
@@ -115,17 +118,28 @@ public class NFUser extends AVUser{
         query.findInBackground(userFindCallback);
     }
 
-    public static void logOut(Activity activity){
+    public static void logOut(final Activity activity){
         logOut();
-        activity.startActivity(new Intent(activity, LoginActivity.class));
-        activity.finish();
+        ChatClient.close(new AVIMClientCallback() {
+            @Override
+            public void done(AVIMClient avimClient, AVException e) {
+                if (e == null) {
+                    activity.startActivity(new Intent(activity, LoginActivity.class));
+                    activity.finish();
+                }
+                else {
+                    MyUtils.Toast("" + e.getCode() + e.getMessage());
+                }
+            }
+        });
+
     }
 
     public static abstract class NFUserCallBack {
         public abstract void succeed(NFUser user);
         public abstract void fail(AVException e);
         protected void internalFail(AVException e) {
-            MyUtils.Log("失败" + e.getCode());
+            MyUtils.Log("失败" + e.getCode() + e.getMessage());
             fail(e);
         }
     }

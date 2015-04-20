@@ -8,6 +8,7 @@ import android.nfc.Tag;
 import android.nfc.tech.NfcA;
 
 import me.weijun.nfchat.activity.LoginActivity;
+import me.weijun.nfchat.activity.MainActivity;
 import me.weijun.nfchat.fragment.LoginFragment;
 
 /**
@@ -59,9 +60,9 @@ public enum NfcHelper {
                 LoginFragment loginFragment = (LoginFragment)((LoginActivity) activity).getSupportFragmentManager().getFragments().get(0);
                 loginFragment.showPasswordEditText(tagId);
             }
-//            else if (activity instanceof MainActivity) {
-//
-//            }
+            else if (activity instanceof MainActivity) {
+
+            }
         }
     }
 

@@ -3,7 +3,6 @@ package me.weijun.nfchat.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,15 +15,15 @@ import android.widget.TextView;
 import com.avos.avoscloud.AVException;
 
 import me.weijun.nfchat.MyUtils;
-import me.weijun.nfchat.model.NFUser;
 import me.weijun.nfchat.R;
 import me.weijun.nfchat.activity.MainActivity;
+import me.weijun.nfchat.model.NFUser;
 
 /**
  * Created by mac on 15/4/15.
  *
  */
-public class LoginFragment extends Fragment {
+public class LoginFragment extends BaseFragment {
     private TextView loginTextView;
     private ImageView loginImageView;
     private EditText idEditText;
@@ -169,7 +168,7 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void fail(AVException e) {
-                MyUtils.Toast("注册失败" + String.valueOf(e.getCode()));
+                MyUtils.Toast("注册失败" + e.getCode() + e.getMessage());
             }
         });
     }
@@ -185,7 +184,7 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void fail(AVException e) {
-                MyUtils.Toast("登录失败" + String.valueOf(e.getCode()));
+                MyUtils.Toast("登录失败" + e.getCode() + e.getMessage());
             }
         });
     }
@@ -201,7 +200,7 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void fail(AVException e) {
-                MyUtils.Toast("登录失败" + String.valueOf(e.getCode()));
+                MyUtils.Toast("登录失败" + e.getCode() + e.getMessage());
             }
         });
     }

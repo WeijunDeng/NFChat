@@ -24,6 +24,17 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+//    @Override
+//    public void onBackPressed() {
+//        MyUtils.Toast("返回键");
+//        if (getSupportFragmentManager().getFragments().size() > 1) {
+//            getSupportFragmentManager().popBackStack();
+//        }
+//        else {
+//            super.onBackPressed();
+//        }
+//    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -34,11 +45,18 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_logout) {
-            MyUtils.Toast("退出");
-            NFUser.logOut(this);
-            return true;
+        switch (id) {
+            case android.R.id.home:
+                MyUtils.Toast("返回");
+                onBackPressed();
+                return true;
+            case R.id.action_logout:
+                MyUtils.Toast("退出");
+                NFUser.logOut(this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
         }
-        return super.onOptionsItemSelected(item);
     }
 }
