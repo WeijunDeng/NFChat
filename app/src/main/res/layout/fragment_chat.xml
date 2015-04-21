@@ -8,14 +8,15 @@
         android:id="@+id/chat_listView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/send_layout" />
+        android:layout_above="@+id/send_layout"
+        android:transcriptMode="alwaysScroll" />
 
     <RelativeLayout
         android:id="@+id/send_layout"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="@color/theme_main"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:background="@color/theme_main">
 
         <EditText
             android:id="@+id/edit_message_editText"

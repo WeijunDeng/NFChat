@@ -62,7 +62,7 @@ public enum ChatClient {
 
                         imClient.createConversation(clientIds, ConversationTypeGroup, imConversationCreatedCallback);
                     } else {
-                        imConversationCreatedCallback.done(imConversations.get(0), null);
+                        imConversationCreatedCallback.done(null, null);
                     }
                 }
             }

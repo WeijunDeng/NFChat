@@ -1,5 +1,9 @@
 package me.weijun.nfchat.fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +18,7 @@ import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.FindCallback;
 import com.avos.avoscloud.im.v2.AVIMClient;
 import com.avos.avoscloud.im.v2.AVIMConversation;
+import com.avos.avoscloud.im.v2.AVIMMessage;
 import com.avos.avoscloud.im.v2.callback.AVIMClientCallback;
 import com.avos.avoscloud.im.v2.callback.AVIMConversationCallback;
 import com.avos.avoscloud.im.v2.callback.AVIMConversationCreatedCallback;
@@ -33,6 +38,9 @@ public class TagListFragment extends BaseFragment {
     private ListView listView;
     private List<AVObject> conversationObjects;
 
+    private BroadcastReceiver receiver;
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
@@ -43,7 +51,6 @@ public class TagListFragment extends BaseFragment {
             @Override
             public void done(AVIMClient avimClient, AVException e) {
                 if (e == null) {
-                    MyUtils.Toast("连接成功");
                     ChatClient.createConversation(new AVIMConversationCreatedCallback() {
                         @Override
                         public void done(AVIMConversation conversation, AVException e) {
@@ -75,21 +82,20 @@ public class TagListFragment extends BaseFragment {
                                                         convertView = View.inflate(getActivity(), R.layout.taglist_item, null);
                                                     }
 //                                                    ((TextView) convertView.findViewById(R.id.textView)).setText(imConversations.get(position).getCreator() + "");
-                                                    ((TextView) convertView.findViewById(R.id.textView)).setText(conversationObjects.get(position).getObjectId());
+                                                    ((TextView) convertView.findViewById(R.id.textView)).setText(conversationObjects.get(position).getString("c"));
                                                     return convertView;
                                                 }
                                             });
                                             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                                 @Override
                                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                    MyUtils.Toast("点击" + position);
                                                     final AVIMConversation conversation = ChatClient.getConversation(conversationObjects.get(position).getObjectId());
                                                     ChatClient.joinConversation(conversation, new AVIMConversationCallback() {
                                                         @Override
                                                         public void done(AVException e) {
                                                             if (e == null) {
                                                                 ChatFragment fragment = new ChatFragment();
-                                                                fragment.setAvimConversation(conversation);
+                                                                fragment.setConversation(conversation);
                                                                 pushFragment(fragment);
                                                             }
                                                             else {
@@ -110,7 +116,21 @@ public class TagListFragment extends BaseFragment {
                 }
             }
         });
-
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                AVIMMessage message = intent.getParcelableExtra("message");
+                MyUtils.Toast(message.getFrom() + ":" + message.getContent());
+            }
+        };
+        getActivity().registerReceiver(receiver, new IntentFilter("receive_im_message"));
         return rootView;
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(receiver);
+    }
+
 }

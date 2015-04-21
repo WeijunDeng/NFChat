@@ -1,10 +1,16 @@
 package me.weijun.nfchat.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import me.weijun.nfchat.MyUtils;
+import com.avos.avoscloud.im.v2.AVIMClient;
+import com.avos.avoscloud.im.v2.AVIMConversation;
+import com.avos.avoscloud.im.v2.AVIMMessage;
+import com.avos.avoscloud.im.v2.AVIMMessageHandler;
+import com.avos.avoscloud.im.v2.AVIMMessageManager;
+
 import me.weijun.nfchat.R;
 import me.weijun.nfchat.fragment.TagListFragment;
 import me.weijun.nfchat.model.NFUser;
@@ -17,23 +23,13 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setTitle(getString(R.string.app_name));
+        AVIMMessageManager.registerDefaultMessageHandler(new MyMessageHandler());
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new TagListFragment())
                     .commit();
         }
     }
-
-//    @Override
-//    public void onBackPressed() {
-//        MyUtils.Toast("返回键");
-//        if (getSupportFragmentManager().getFragments().size() > 1) {
-//            getSupportFragmentManager().popBackStack();
-//        }
-//        else {
-//            super.onBackPressed();
-//        }
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -47,16 +43,23 @@ public class MainActivity extends BaseActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
-                MyUtils.Toast("返回");
                 onBackPressed();
                 return true;
             case R.id.action_logout:
-                MyUtils.Toast("退出");
                 NFUser.logOut(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
 
+        }
+    }
+
+    public class MyMessageHandler extends AVIMMessageHandler {
+        @Override
+        public void onMessage(AVIMMessage message, AVIMConversation conversation, AVIMClient client) {
+            Intent intent = new Intent("receive_im_message");
+            intent.putExtra("message", message);
+            sendBroadcast(intent);
         }
     }
 }

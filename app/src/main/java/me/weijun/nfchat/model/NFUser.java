@@ -41,7 +41,6 @@ public class NFUser extends AVUser{
             public void done(List<NFUser> users, AVException e) {
                 if (e == null) {
                     if (users != null && users.size() > 0) {
-                        MyUtils.Toast(users.get(0).getUserId() + "");
                         userCallBack.succeed(users.get(0));
                     }
                     else {
