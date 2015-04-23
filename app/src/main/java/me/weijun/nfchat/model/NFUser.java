@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 
 import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.FindCallback;
@@ -14,7 +15,6 @@ import com.avos.avoscloud.im.v2.callback.AVIMClientCallback;
 
 import java.util.List;
 
-import me.weijun.nfchat.ChatClient;
 import me.weijun.nfchat.MyUtils;
 import me.weijun.nfchat.activity.LoginActivity;
 
@@ -32,9 +32,17 @@ public class NFUser extends AVUser{
         this.put("userId", userId);
     }
 
-    public static void findUserByTagIdInBackground(String tagId, final NFUserCallBack userCallBack) {
+    public String getNickName() {
+        return this.getString("nickname");
+    }
+
+    public void setNickName(String nickName) {
+        this.put("nickname", nickName);
+    }
+
+    public static void findUserByUserIdInBackground(int userId, final NFUserCallBack userCallBack) {
         AVQuery<NFUser> query = NFUser.getUserQuery(NFUser.class);
-        query.whereEqualTo("username", tagId);
+        query.whereEqualTo("userId", userId);
         query.setLimit(1);
         query.findInBackground(new FindCallback<NFUser>() {
             @Override
@@ -52,6 +60,37 @@ public class NFUser extends AVUser{
                 }
             }
         });
+    }
+
+    public static void findUserByTagId(String tagId, final NFUserCallBack userCallBack) {
+        AVQuery<AVObject> query = new AVQuery<>("_Conversation");
+        query.whereEqualTo("attr.tagId", tagId);
+        query.setLimit(1);
+        query.findInBackground(new FindCallback<AVObject>() {
+            @Override
+            public void done(List<AVObject> avObjects, AVException e) {
+                if (e != null) {
+                    MyUtils.Toast(e.getCode() + e.getMessage());
+                    return;
+                }
+                if (avObjects != null && avObjects.size() > 0) {
+                    String userIdString = avObjects.get(0).getString("c");
+                    int userId = 0;
+                    try {
+                        userId = Integer.parseInt(userIdString);
+                    } catch (NumberFormatException e1) {
+                        e1.printStackTrace();
+                    }
+                    NFUser.findUserByUserIdInBackground(userId, userCallBack);
+                }
+            }
+        });
+
+    }
+
+    public static void findAllUsers(FindCallback<NFUser> userFindCallback) {
+        AVQuery<NFUser> query = NFUser.getUserQuery(NFUser.class);
+        query.findInBackground(userFindCallback);
     }
 
     public static void register(final String tagId, final String password, final NFUserCallBack userCallBack) {
@@ -86,23 +125,20 @@ public class NFUser extends AVUser{
     }
 
     public static void login(int userId, final String password, final NFUserCallBack userCallBack) {
-        AVQuery<NFUser> query = NFUser.getUserQuery(NFUser.class);
-        query.whereEqualTo("userId", userId);
-        query.setLimit(1);
-        query.findInBackground(new FindCallback<NFUser>() {
+        NFUser.findUserByUserIdInBackground(userId, new NFUserCallBack() {
             @Override
-            public void done(List<NFUser> users, AVException e) {
-                if (e == null) {
-                    if (users != null && users.size() > 0) {
-                        login(users.get(0).getUsername(), password, userCallBack);
-                    }
-                    else {
-                        userCallBack.succeed(null);
-                    }
+            public void succeed(NFUser user) {
+                if (user != null) {
+                    login(user.getUsername(), password, userCallBack);
                 }
                 else {
-                    userCallBack.internalFail(e);
+                    userCallBack.succeed(null);
                 }
+            }
+
+            @Override
+            public void fail(AVException e) {
+                userCallBack.internalFail(e);
             }
         });
     }
@@ -111,15 +147,9 @@ public class NFUser extends AVUser{
         return AVUser.getCurrentUser(NFUser.class);
     }
 
-    public static void getAllUser(FindCallback<NFUser> userFindCallback) {
-        AVQuery<NFUser> query = NFUser.getUserQuery(NFUser.class);
-        query.whereNotEqualTo("userId", getCurrentUser().getUserId());
-        query.findInBackground(userFindCallback);
-    }
-
     public static void logOut(final Activity activity){
         logOut();
-        ChatClient.close(new AVIMClientCallback() {
+        ChatClient.instance.close(new AVIMClientCallback() {
             @Override
             public void done(AVIMClient avimClient, AVException e) {
                 if (e == null) {

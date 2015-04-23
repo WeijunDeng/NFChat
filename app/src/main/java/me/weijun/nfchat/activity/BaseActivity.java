@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 
-import me.weijun.nfchat.NfcHelper;
+import me.weijun.nfchat.model.NfcHelper;
 
 
 public class BaseActivity extends ActionBarActivity {

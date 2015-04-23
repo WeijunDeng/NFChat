@@ -1,4 +1,4 @@
-package me.weijun.nfchat;
+package me.weijun.nfchat.model;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -7,6 +7,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.NfcA;
 
+import me.weijun.nfchat.MyUtils;
 import me.weijun.nfchat.activity.LoginActivity;
 import me.weijun.nfchat.activity.MainActivity;
 import me.weijun.nfchat.fragment.LoginFragment;
@@ -19,7 +20,7 @@ public enum NfcHelper {
 
     instance;
 
-    private static NfcAdapter mNfcAdapter;
+    private NfcAdapter mNfcAdapter;
 
 
     public void onCreateInActivity(Activity activity) {
@@ -61,7 +62,7 @@ public enum NfcHelper {
                 loginFragment.showPasswordEditText(tagId);
             }
             else if (activity instanceof MainActivity) {
-
+                ((MainActivity)activity).handleNfcIntent(tagId);
             }
         }
     }

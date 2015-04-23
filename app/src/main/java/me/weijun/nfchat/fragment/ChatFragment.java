@@ -14,12 +14,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.FindCallback;
 import com.avos.avoscloud.im.v2.AVIMConversation;
 import com.avos.avoscloud.im.v2.AVIMMessage;
 import com.avos.avoscloud.im.v2.callback.AVIMConversationCallback;
 import com.avos.avoscloud.im.v2.callback.AVIMMessagesQueryCallback;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import me.weijun.nfchat.MyUtils;
 import me.weijun.nfchat.R;
@@ -35,8 +38,8 @@ public class ChatFragment extends BaseFragment {
     private BaseAdapter adapter;
     private AVIMConversation conversation;
     private List<AVIMMessage> messages;
-
     private BroadcastReceiver receiver;
+    private Map<String, String> nameMap;
 
     public void setConversation(AVIMConversation conversation) {
         this.conversation = conversation;
@@ -47,12 +50,13 @@ public class ChatFragment extends BaseFragment {
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getActivity().setTitle(conversation.getAttribute("creatorName").toString() + "的" + conversation.getName() + "(" + conversation.getMembers().size() + ")");
         View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
         listView = (ListView) rootView.findViewById(R.id.chat_listView);
         adapter = new BaseAdapter() {
             @Override
             public int getCount() {
-                return messages==null?0:messages.size();
+                return messages == null ? 0 : messages.size();
             }
 
             @Override
@@ -68,14 +72,21 @@ public class ChatFragment extends BaseFragment {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 AVIMMessage message = messages.get(position);
+
 //                if (convertView == null) {
-                    if (message.getFrom().equals(NFUser.getCurrentUser().getUserId()+"")) {
-                        convertView = View.inflate(getActivity(), R.layout.chat_item_text_right, null);
-                    } else {
-                        convertView = View.inflate(getActivity(), R.layout.chat_item_text_left, null);
+                if (message.getFrom().equals(NFUser.getCurrentUser().getUserId() + "")) {
+                    convertView = View.inflate(getActivity(), R.layout.chat_item_text_right, null);
+                    ((TextView) convertView.findViewById(R.id.name_textView)).setText(NFUser.getCurrentUser().getNickName());
+                } else {
+                    convertView = View.inflate(getActivity(), R.layout.chat_item_text_left, null);
+                    if (nameMap != null) {
+                        ((TextView) convertView.findViewById(R.id.name_textView)).setText(nameMap.get(message.getFrom()));
                     }
+                    else {
+                        ((TextView) convertView.findViewById(R.id.name_textView)).setText(message.getFrom());
+                    }
+                }
 //                }
-                ((TextView) convertView.findViewById(R.id.name_textView)).setText(message.getFrom());
                 ((TextView) convertView.findViewById(R.id.message_textView)).setText(message.getContent());
                 return convertView;
             }
@@ -98,7 +109,7 @@ public class ChatFragment extends BaseFragment {
                             messages.add(imMessage);
                             adapter.notifyDataSetChanged();
                         } else {
-                            MyUtils.Toast("发送失败"+e.getCode()+e.getMessage());
+                            MyUtils.Toast("发送失败" + e.getCode() + e.getMessage());
                         }
                     }
                 });
@@ -106,6 +117,7 @@ public class ChatFragment extends BaseFragment {
             }
         });
         loadAllMessage();
+        loadAllMembersNickName();
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -113,16 +125,19 @@ public class ChatFragment extends BaseFragment {
                 if (message.getConversationId().equals(conversation.getConversationId())) {
                     messages.add(message);
                     adapter.notifyDataSetChanged();
-                }
-                else {
+                } else {
                     MyUtils.Toast(message.getFrom() + ":" + message.getContent());
                 }
             }
         };
-        getActivity().registerReceiver(receiver, new IntentFilter("receive_im_message"));
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().registerReceiver(receiver, new IntentFilter("receive_im_message"));
+    }
 
     @Override
     public void onPause() {
@@ -130,21 +145,41 @@ public class ChatFragment extends BaseFragment {
         getActivity().unregisterReceiver(receiver);
     }
 
-    private void loadAllMessage() {
+    public void loadAllMessage() {
         conversation.queryMessages(new AVIMMessagesQueryCallback() {
             @Override
             public void done(List<AVIMMessage> avimMessages, AVException e) {
                 if (e == null) {
                     if (messages == null) {
                         messages = avimMessages;
-                    }
-                    else {
+                    } else {
                         messages.clear();
                         messages.addAll(avimMessages);
                     }
                     adapter.notifyDataSetChanged();
                 } else {
                     MyUtils.Toast(e.getCode() + e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void loadAllMembersNickName() {
+        NFUser.findAllUsers(new FindCallback<NFUser>() {
+            @Override
+            public void done(List<NFUser> nfUsers, AVException e) {
+                if (e != null) {
+                    MyUtils.Toast(e.getCode() + e.getMessage());
+                    return;
+                }
+                if (nfUsers != null && nfUsers.size() > 0) {
+                    for (NFUser user : nfUsers) {
+                        nameMap = new HashMap<>();
+                        nameMap.put(user.getUserId()+"", user.getNickName());
+                    }
+                    if (messages != null && adapter != null) {
+                        adapter.notifyDataSetChanged();
+                    }
                 }
             }
         });

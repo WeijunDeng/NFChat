@@ -31,7 +31,7 @@ public class LoginFragment extends BaseFragment {
     private Button loginButton;
     private Button idButton;
 
-    private String tagId;
+    public String tagId;
 
     public LoginFragment() {
     }
@@ -137,12 +137,13 @@ public class LoginFragment extends BaseFragment {
         setDefaultVisibility();
         loginImageView.setImageDrawable(getResources().getDrawable(R.drawable.credit_card_2));
         loginTextView.setText("正在查询这张卡的主人...");
-        NFUser.findUserByTagIdInBackground(tagId, new NFUser.NFUserCallBack() {
+        NFUser.findUserByTagId(tagId, new NFUser.NFUserCallBack() {
                     @Override
                     public void succeed(NFUser user) {
                         if (user != null) {
                             loginTextView.setText("如果你是这张卡的主人\nID:" + user.getUserId());
                             passwordEditText.setHint("请输入密码登录");
+                            LoginFragment.this.tagId = user.getUsername();
                         }
                         else {
                             loginTextView.setText("你将成为这张卡的主人");
