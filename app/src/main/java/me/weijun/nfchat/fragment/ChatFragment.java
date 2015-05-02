@@ -34,6 +34,7 @@ import me.weijun.nfchat.model.NFUser;
  */
 public class ChatFragment extends BaseFragment {
 
+    private EditText messageEditText;
     private ListView listView;
     private BaseAdapter adapter;
     private AVIMConversation conversation;
@@ -52,6 +53,10 @@ public class ChatFragment extends BaseFragment {
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getActivity().setTitle(conversation.getAttribute("creatorName").toString() + "的" + conversation.getName() + "(" + conversation.getMembers().size() + ")");
         View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
+        messageEditText = (EditText) rootView.findViewById(R.id.edit_message_editText);
+        if (conversation.getMembers().size() <= 1) {
+            messageEditText.setHint("试试让别人收集一下你的卡");
+        }
         listView = (ListView) rootView.findViewById(R.id.chat_listView);
         adapter = new BaseAdapter() {
             @Override
@@ -72,18 +77,16 @@ public class ChatFragment extends BaseFragment {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 AVIMMessage message = messages.get(position);
-
 //                if (convertView == null) {
                 if (message.getFrom().equals(NFUser.getCurrentUser().getUserId() + "")) {
                     convertView = View.inflate(getActivity(), R.layout.chat_item_text_right, null);
-                    ((TextView) convertView.findViewById(R.id.name_textView)).setText(NFUser.getCurrentUser().getNickName());
+                    ((TextView) convertView.findViewById(R.id.name_textView)).setText(MyUtils.getDateString(message.getTimestamp()) + " " + NFUser.getCurrentUser().getNickName());
                 } else {
                     convertView = View.inflate(getActivity(), R.layout.chat_item_text_left, null);
                     if (nameMap != null) {
-                        ((TextView) convertView.findViewById(R.id.name_textView)).setText(nameMap.get(message.getFrom()));
-                    }
-                    else {
-                        ((TextView) convertView.findViewById(R.id.name_textView)).setText(message.getFrom());
+                        ((TextView) convertView.findViewById(R.id.name_textView)).setText(nameMap.get(message.getFrom()) + " " + MyUtils.getDateString(message.getTimestamp()));
+                    } else {
+                        ((TextView) convertView.findViewById(R.id.name_textView)).setText(message.getFrom() + " " + MyUtils.getDateString(message.getTimestamp()));
                     }
                 }
 //                }
@@ -92,7 +95,6 @@ public class ChatFragment extends BaseFragment {
             }
         };
         listView.setAdapter(adapter);
-        final EditText messageEditText = (EditText) rootView.findViewById(R.id.edit_message_editText);
         rootView.findViewById(R.id.send_message_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,12 +110,12 @@ public class ChatFragment extends BaseFragment {
                         if (e == null) {
                             messages.add(imMessage);
                             adapter.notifyDataSetChanged();
+                            messageEditText.setText("");
                         } else {
                             MyUtils.Toast("发送失败" + e.getCode() + e.getMessage());
                         }
                     }
                 });
-                messageEditText.setText("");
             }
         });
         loadAllMessage();
@@ -146,10 +148,15 @@ public class ChatFragment extends BaseFragment {
     }
 
     public void loadAllMessage() {
+        MyUtils.instance.showProgressDialog(getActivity());
         conversation.queryMessages(new AVIMMessagesQueryCallback() {
             @Override
             public void done(List<AVIMMessage> avimMessages, AVException e) {
+                MyUtils.instance.dismissProgressDialog();
                 if (e == null) {
+                    if (avimMessages != null && avimMessages.size() == 0 && conversation.getMembers().size() > 1) {
+                        messageEditText.setHint("没人说说话吗");
+                    }
                     if (messages == null) {
                         messages = avimMessages;
                     } else {
@@ -165,9 +172,11 @@ public class ChatFragment extends BaseFragment {
     }
 
     public void loadAllMembersNickName() {
+        MyUtils.instance.showProgressDialog(getActivity());
         NFUser.findAllUsers(new FindCallback<NFUser>() {
             @Override
             public void done(List<NFUser> nfUsers, AVException e) {
+                MyUtils.instance.dismissProgressDialog();
                 if (e != null) {
                     MyUtils.Toast(e.getCode() + e.getMessage());
                     return;
@@ -175,7 +184,7 @@ public class ChatFragment extends BaseFragment {
                 if (nfUsers != null && nfUsers.size() > 0) {
                     for (NFUser user : nfUsers) {
                         nameMap = new HashMap<>();
-                        nameMap.put(user.getUserId()+"", user.getNickName());
+                        nameMap.put(user.getUserId() + "", user.getNickName());
                     }
                     if (messages != null && adapter != null) {
                         adapter.notifyDataSetChanged();

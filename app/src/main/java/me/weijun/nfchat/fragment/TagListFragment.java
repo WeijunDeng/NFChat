@@ -29,6 +29,7 @@ import me.weijun.nfchat.MyUtils;
 import me.weijun.nfchat.R;
 import me.weijun.nfchat.activity.MainActivity;
 import me.weijun.nfchat.model.ChatClient;
+import me.weijun.nfchat.model.NFUser;
 
 /**
  * Created by WeijunDeng on 2015/4/19.
@@ -46,13 +47,13 @@ public class TagListFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        getActivity().setTitle(getString(R.string.app_name) + " 群组列表");
+        getActivity().setTitle(NFUser.getCurrentUser().getNickName() + "：" + NFUser.getCurrentUser().getUserId());
         View rootView = inflater.inflate(R.layout.fragment_taglist, container, false);
         listView = (ListView) rootView.findViewById(R.id.tag_listView);
         adapter = new BaseAdapter() {
             @Override
             public int getCount() {
-                return conversations==null?0:conversations.size();
+                return conversations == null ? 0 : conversations.size();
             }
 
             @Override
@@ -70,9 +71,8 @@ public class TagListFragment extends BaseFragment {
                 if (convertView == null) {
                     convertView = View.inflate(getActivity(), R.layout.taglist_item, null);
                 }
-                String creator = conversations.get(position).getAttribute("creatorName").toString();
-                String tag = conversations.get(position).getName();
-                ((TextView) convertView.findViewById(R.id.textView)).setText(creator + "的" + tag);
+                AVIMConversation conversation = conversations.get(position);
+                ((TextView) convertView.findViewById(R.id.textView)).setText(conversation.getAttribute("creatorName").toString() + "的" + conversation.getName() + "(" + conversation.getMembers().size() + ")");
                 return convertView;
             }
         };
@@ -99,9 +99,11 @@ public class TagListFragment extends BaseFragment {
                             return;
                         }
                         conversation.setName(name);
+                        MyUtils.instance.showProgressDialog(getActivity());
                         conversation.updateInfoInBackground(new AVIMConversationCallback() {
                             @Override
                             public void done(AVException e) {
+                                MyUtils.instance.dismissProgressDialog();
                                 if (e != null) {
                                     MyUtils.Toast(e.getCode() + " " + e.getMessage());
                                 } else {
@@ -115,16 +117,6 @@ public class TagListFragment extends BaseFragment {
                 return true;
             }
         });
-        ChatClient.instance.open(new AVIMClientCallback() {
-            @Override
-            public void done(AVIMClient avimClient, AVException e) {
-                if (e == null) {
-                    loadConversations();
-                } else {
-                    MyUtils.Toast("连接失败：" + e.getCode() + e.getMessage());
-                }
-            }
-        });
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -132,6 +124,23 @@ public class TagListFragment extends BaseFragment {
                 MyUtils.Toast(message.getFrom() + ":" + message.getContent());
             }
         };
+        if (ChatClient.instance.hasOpened()) {
+            loadConversations();
+        }
+        else {
+            MyUtils.instance.showProgressDialog(getActivity());
+            ChatClient.instance.open(new AVIMClientCallback() {
+                @Override
+                public void done(AVIMClient avimClient, AVException e) {
+                    MyUtils.instance.dismissProgressDialog();
+                    if (e != null) {
+                        MyUtils.Toast("连接失败" + e.getCode() + e.getMessage());
+                        return;
+                    }
+                    loadConversations();
+                }
+            });
+        }
         return rootView;
     }
 
@@ -148,9 +157,11 @@ public class TagListFragment extends BaseFragment {
     }
 
     public void loadConversations() {
+        MyUtils.instance.showProgressDialog(getActivity());
         ChatClient.instance.findMyConversations(new AVIMConversationQueryCallback() {
             @Override
             public void done(List<AVIMConversation> avimConversations, AVException e) {
+                MyUtils.instance.dismissProgressDialog();
                 conversations = avimConversations;
                 listView.setAdapter(adapter);
             }

@@ -56,7 +56,7 @@ public enum NfcHelper {
                 .equals(intent.getAction()))) {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             String tagId = NfcHelper.byte2HexString(tag.getId());
-            MyUtils.Toast(tagId);
+            MyUtils.Toast("读取卡ID："+tagId);
             if (activity instanceof LoginActivity) {
                 LoginFragment loginFragment = (LoginFragment)((LoginActivity) activity).getSupportFragmentManager().getFragments().get(0);
                 loginFragment.showPasswordEditText(tagId);
@@ -67,7 +67,14 @@ public enum NfcHelper {
         }
     }
 
-    public boolean NfcEnabled (Activity activity) {
+    public boolean NfcIsOk() {
+        if (mNfcAdapter != null && mNfcAdapter.isEnabled()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean NfcEnabled (Activity activity) {
         mNfcAdapter = NfcAdapter.getDefaultAdapter(activity);
         if (mNfcAdapter == null) {
             if (activity instanceof LoginActivity) {

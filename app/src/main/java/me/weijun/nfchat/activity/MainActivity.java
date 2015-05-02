@@ -33,10 +33,9 @@ import me.weijun.nfchat.model.NFUser;
 public class MainActivity extends BaseActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setTitle(getString(R.string.app_name));
         AVIMMessageManager.registerDefaultMessageHandler(new MyMessageHandler());
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -49,7 +48,7 @@ public class MainActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        menu.getItem(0).setTitle(NFUser.getCurrentUser().getNickName());
+        menu.getItem(0).setTitle("修改昵称");
         return true;
     }
 
@@ -64,13 +63,22 @@ public class MainActivity extends BaseActivity {
                 editNickName(item);
                 return true;
             case R.id.action_logout:
-                NFUser.logOut(this);
+                logout();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-
         }
     }
+
+    private void logout() {
+        MyUtils.ShowConfirmDialog(this, "确定退出?", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                NFUser.logOut(MainActivity.this);
+            }
+        });
+    }
+
 
     private void editNickName(final MenuItem item) {
         final EditText editText = new EditText(this);
@@ -85,9 +93,11 @@ public class MainActivity extends BaseActivity {
                 }
                 NFUser user = NFUser.getCurrentUser();
                 user.setNickName(name);
+                MyUtils.instance.showProgressDialog(MainActivity.this);
                 user.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(AVException e) {
+                        MyUtils.instance.dismissProgressDialog();
                         if (e != null) {
                             MyUtils.Toast(e.getCode() + " " + e.getMessage());
                         } else {
@@ -102,12 +112,14 @@ public class MainActivity extends BaseActivity {
     }
 
     public void handleNfcIntent(final String tagId) {
+        MyUtils.instance.showProgressDialog(this);
         AVIMConversationQuery conversationQuery = ChatClient.instance.getQuery();
         conversationQuery.whereEqualTo("attr.tagId", tagId);
         conversationQuery.setLimit(1);
         conversationQuery.findInBackground(new AVIMConversationQueryCallback() {
             @Override
             public void done(List<AVIMConversation> avimConversations, AVException e) {
+                MyUtils.instance.dismissProgressDialog();
                 if (e != null) {
                     MyUtils.Toast(e.getCode() + e.getMessage());
                     return;
@@ -115,12 +127,18 @@ public class MainActivity extends BaseActivity {
                 if (avimConversations != null && avimConversations.size() > 0) {
                     final AVIMConversation conversation = avimConversations.get(0);
                     final String tagName = conversation.getAttribute("creatorName").toString() + "的" + conversation.getName();
+                    if (conversation.getMembers().contains(NFUser.getCurrentUser().getUserId() + "")) {
+                        MyUtils.Toast("已经收集了[" + tagName + "]");
+                        return;
+                    }
                     MyUtils.ShowConfirmDialog(MainActivity.this, "确定收集[" + tagName + "]吗?", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            MyUtils.instance.showProgressDialog(MainActivity.this);
                             conversation.join(new AVIMConversationCallback() {
                                 @Override
                                 public void done(AVException e) {
+                                    MyUtils.instance.dismissProgressDialog();
                                     if (e != null) {
                                         MyUtils.Toast(e.getCode() + e.getMessage());
                                         return;
@@ -134,19 +152,45 @@ public class MainActivity extends BaseActivity {
 
 
                 } else if (avimConversations != null && avimConversations.size() == 0) {
-                    MyUtils.ShowConfirmDialog(MainActivity.this, "确定要创建并收集这张新卡吗?", new DialogInterface.OnClickListener() {
+                    MyUtils.ShowConfirmDialog(MainActivity.this, "确定收集这张新卡吗?", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            MyUtils.instance.showProgressDialog(MainActivity.this);
                             ChatClient.instance.createConversationByTagId(tagId, new AVIMConversationCreatedCallback() {
                                 @Override
-                                public void done(AVIMConversation conversation, AVException e) {
+                                public void done(final AVIMConversation conversation, AVException e) {
+                                    MyUtils.instance.dismissProgressDialog();
                                     if (e != null) {
                                         MyUtils.Toast(e.getCode() + e.getMessage());
                                         return;
                                     }
                                     if (conversation != null) {
-                                        MyUtils.Toast("创建并收集成功:" + conversation.getAttribute("creatorName").toString() + "的" + conversation.getName());
-                                        reloadFragment();
+                                        MyUtils.Toast("收集成功");
+                                        final EditText editText = new EditText(MainActivity.this);
+                                        editText.setText("卡卡");
+                                        MyUtils.ShowInputDialog(MainActivity.this, "新卡名字：", editText, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                final String name = editText.getText().toString();
+                                                if (name.length() == 0) {
+                                                    MyUtils.Toast("不能为空");
+                                                    return;
+                                                }
+                                                conversation.setName(name);
+                                                conversation.updateInfoInBackground(new AVIMConversationCallback() {
+                                                    @Override
+                                                    public void done(AVException e) {
+                                                        if (e != null) {
+                                                            MyUtils.Toast(e.getCode() + e.getMessage());
+                                                            return;
+                                                        }
+                                                        MyUtils.Toast("修改名字成功");
+                                                        reloadFragment();
+                                                    }
+                                                });
+                                            }
+
+                                        });
                                     }
                                 }
                             });

@@ -149,9 +149,11 @@ public class NFUser extends AVUser{
 
     public static void logOut(final Activity activity){
         logOut();
+        MyUtils.instance.showProgressDialog(activity);
         ChatClient.instance.close(new AVIMClientCallback() {
             @Override
             public void done(AVIMClient avimClient, AVException e) {
+                MyUtils.instance.dismissProgressDialog();
                 if (e == null) {
                     activity.startActivity(new Intent(activity, LoginActivity.class));
                     activity.finish();

@@ -28,7 +28,7 @@
         android:inputType="number"
         android:ems="10"
         android:id="@+id/id_editText"
-        android:hint="101"
+        android:hint="用户编号"
         android:layout_below="@id/login_textView"
         android:layout_centerHorizontal="true"
         android:visibility="gone"/>
@@ -47,7 +47,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Go"
+        android:text="进入"
+        android:padding="10dp"
         android:textSize="15sp"
         android:id="@+id/login_go_button"
         android:layout_below="@id/password_editText"
@@ -59,7 +60,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ID登录"
+        android:text="请将卡片靠近手机后背"
+        android:padding="10dp"
         android:textSize="15sp"
         android:id="@+id/login_id_button"
         android:background="@drawable/button_background"

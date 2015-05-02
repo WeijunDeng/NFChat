@@ -1,5 +1,6 @@
 package me.weijun.nfchat.model;
 
+import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.im.v2.AVIMClient;
 import com.avos.avoscloud.im.v2.AVIMConversationQuery;
 import com.avos.avoscloud.im.v2.callback.AVIMClientCallback;
@@ -21,6 +22,12 @@ public enum ChatClient {
 
     private AVIMClient imClient;
 
+    private boolean isOpened = false;
+
+    public boolean hasOpened() {
+        return isOpened;
+    }
+
     private AVIMClient getImClient() {
         if (imClient == null) {
             imClient = AVIMClient.getInstance(NFUser.getCurrentUser().getUserId() + "");
@@ -28,8 +35,16 @@ public enum ChatClient {
         return imClient;
     }
 
-    public void open(final AVIMClientCallback imClientCallback) {
-        getImClient().open(imClientCallback);
+    public void open(final AVIMClientCallback avimClientCallback) {
+        getImClient().open(new AVIMClientCallback() {
+            @Override
+            public void done(AVIMClient avimClient, AVException e) {
+                if (e == null) {
+                    isOpened = true;
+                }
+                avimClientCallback.done(avimClient,e);
+            }
+        });
     }
 
     public void findMyConversations(AVIMConversationQueryCallback conversationQueryCallback) {
@@ -52,14 +67,15 @@ public enum ChatClient {
         final List<String> clientIds = new ArrayList<>();
         clientIds.add(NFUser.getCurrentUser().getUserId() + "");
 
-        Map<String, Object> attr = new HashMap<String, Object>();
+        Map<String, Object> attr = new HashMap<>();
         attr.put("creatorName", NFUser.getCurrentUser().getNickName());
         attr.put("tagId", tagId);
-        getImClient().createConversation(clientIds, "新卡卡", attr, conversationCreatedCallback);
+        getImClient().createConversation(clientIds, attr, conversationCreatedCallback);
 
     }
 
     public void close(AVIMClientCallback avimClientCallback) {
+        isOpened = false;
         getImClient().close(avimClientCallback);
     }
 }
